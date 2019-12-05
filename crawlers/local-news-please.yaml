@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: np-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: np-container
+          image: ls6-staff-registry.informatik.uni-wuerzburg.de/...  # link to your image
+          imagePullPolicy: "IfNotPresent"
+          resources:  # set both limits & requests! (can be equal)
+            limits:  # maximum resources you're allowed to use before kubernetes shuts your pod down
+              cpu: "10"
+              memory: "5Gi"
+            requests:  # resources you request
+              cpu: "10"
+              memory: "5Gi"
+          #command: ["python3", "/home/ls6/extsales/path/to/yourfile.py"]
+          volumeMounts:
+            - mountPath: "/home/ls6/extsales" # directory IN the container
+              name: home # matches volume-name from below
+      securityContext:
+        runAsUser: <userid>  # your own userid (4 digit number)
+        fsGroup: 1003  # just copy
+      imagePullSecrets:
+        - name: lsx-registry
+      restartPolicy: "Never"
+      volumes:
+        - name: home  # mount your home
+          cephfs:
+            monitors:
+              - 132.187.14.16,132.187.14.17,132.187.14.19,132.187.14.20  # Not important for you, just copy along
+            user: extsales
+            path: "/home/ls6/extsales"
+            secretRef:
+              name: ceph-secret

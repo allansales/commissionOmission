@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: np-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: news-please
+          #image: ntlf/news-please:latest
+          image: extsales/news-please:latest
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            limits:
+              cpu: "4"
+              memory: "16Gi"
+          volumeMounts:
+            - mountPath: "/news-please-repo"
+              name: localdir
+          #command: ["news-please","-c","/home/ext/sales/news-please-file"]
+      imagePullSecrets:
+        - name: lsx-registry
+      restartPolicy: "Never"
+      volumes:
+        - name: localdir
+          cephfs:
+            monitors:
+              - 132.187.14.16,132.187.14.17,132.187.14.19,132.187.14.20  # Not important for you, just copy along
+            user: extsales  # <namespace>
+            path: "/home/ext/sales/crawled_news" # The path you want to mount
+            secretRef: # The name of the secret for auth. Is always "ceph-secret"
+              name: ceph-secret

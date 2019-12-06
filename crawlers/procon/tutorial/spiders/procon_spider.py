@@ -39,7 +39,6 @@ class AuthorSpider(scrapy.Spider):
 		for string in str_array:
 			string = re.sub(tags_reg, '', string)
 			string = re.sub(procon_reg, '', string, 1).strip()
-			string = re.sub(citation_reg, '', string)
 			new_str_array.append(string)
 		return new_str_array
 

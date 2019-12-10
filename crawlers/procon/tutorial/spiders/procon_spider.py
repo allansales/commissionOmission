@@ -50,11 +50,23 @@ class AuthorSpider(scrapy.Spider):
 		# detect brackets. i.e., [ or ]
 		bracket_reg = re.compile('[\[\]]')
 
+		# detect \n
+		paragraph_reg = re.compile('\n+')
+
+		# remove signature of text (e.g., the ones contained in https://euthanasia.procon.org/view.resource.php?resourceID=000126)
+		# by retrieving only the quoted text
+
 		for string in str_array:
 			string = re.sub(tags_reg, '', string)
 			string = re.sub(bracket_reg, '', string)
 			string = re.sub(citation_reg, '', string)
+			string = re.sub(paragraph_reg, ' ', string)
 			string = re.sub(procon_reg, '', string, 1).strip()
+			print("==================================================")
+			print(string)
+			print("==================================================")
+			if string.startswith('"'):
+				string = re.findall('"([^"]*)"', string)[0]
 			new_str_array.append(string)
 		return new_str_array
 

@@ -62,9 +62,6 @@ class AuthorSpider(scrapy.Spider):
 			string = re.sub(citation_reg, '', string)
 			string = re.sub(paragraph_reg, ' ', string)
 			string = re.sub(procon_reg, '', string, 1).strip()
-			print("==================================================")
-			print(string)
-			print("==================================================")
 			if string.startswith('"'):
 				string = re.findall('"([^"]*)"', string)[0]
 			new_str_array.append(string)

@@ -19,8 +19,16 @@ class AuthorSpider(scrapy.Spider):
                          "https://rationalwiki.org/wiki/Prostitution","https://rationalwiki.org/wiki/Video_game#Violence","https://rationalwiki.org/wiki/Minimum_wage",
                          "https://rationalwiki.org/wiki/Iraq_War","https://rationalwiki.org/wiki/Illegal_immigration"]
 
-    topic_urls = ["Death Penalty", "Gun Control", "Marijuana", "ACLU", "Euthanasia", "Abortion", "Health Care Form", "Climate Change", "Net Neutrality", "GMOs", "Corporal Punishment",
-                  "School Vouchers", "Gay Marriage", "Prostitution", "Video Games", "Minimum Wage", "Iraq War", "Immigration"]
+    topic_urls = ["Death Penalty", "Gun Control", "Marijuana", "ACLU", "Euthanasia", "Abortion", "Health Care Form", "Climate Change", "Net Neutrality", "GMOs",
+                  "Corporal Punishment", "School Vouchers", "Gay Marriage", "Prostitution", "Video Games", "Minimum Wage", "Iraq War", "Immigration"]
+
+    conservapedia_stances = ["Pro","Con","Con","Con","Con","Con","Con","Con-","Con","Con*","Con","Con*","Con","Con","Con-","Con","Pro","Con-"]
+    rationalwiki_stances = ["Con","Pro","Pro","Pro","Pro*","Pro","Pro*","Pro-","Pro","Pro*","Con","Pro*","Pro","Pro*","Pro-","Pro*","Con","Pro-"]
+
+    CONSERVAPEDIA = "conservapedia"
+
+    #* cannot say that they are pro/con the topic. They either can be partially pro and con or we could not identify their stance
+    #- do not address specifically the topic. e.g., The climate change discussion in procon.org is about who is guilty for the fact while in conservapedia and rationalwiki they argue pro/con the existance of climate change
 
     start_urls = conservapedia_urls + rationalwiki_urls
 
@@ -58,16 +66,24 @@ class AuthorSpider(scrapy.Spider):
 
         return paragraphs
 
-    def get_topic(self, response, source):
-
+    def get_idx(self, response, source):
         url = response.request.url
 
         urls = self.rationalwiki_urls
-        if source == "conservapedia":
+        if source == self.CONSERVAPEDIA:
             urls = self.conservapedia_urls
 
         idx = urls.index(url)
+        return idx
+
+    def get_topic(self, idx):
         return self.topic_urls[idx]
+
+    def get_stance(self, idx, source):
+        stances = self.rationalwiki_stances
+        if source == self.CONSERVAPEDIA:
+            stances = self.conservapedia_stances
+        return stances[idx]
 
     def get_source(self, response):
         if "wikipedia" in response.request.url:
@@ -81,9 +97,11 @@ class AuthorSpider(scrapy.Spider):
 
     def parse(self, response):
         source = self.get_source(response)
+        idx = self.get_idx(response, source)
         yield {
             'source': source,
-            'topic': self.get_topic(response, source),
+            'topic': self.get_topic(idx),
+            'stance': self.get_stance(idx, source),
             'title': response.xpath('//*[@id="firstHeading"]//text()').get(),
             #'content': response.xpath('//div[@id="bodyContent"]').get()
             'content': self.preprocess_text(response)

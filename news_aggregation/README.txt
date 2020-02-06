@@ -1,0 +1,1 @@
+We use the following scripts for structuring the news obtained by means of news-please

@@ -99,6 +99,7 @@ class AuthorSpider(scrapy.Spider):
         source = self.get_source(response)
         idx = self.get_idx(response, source)
         yield {
+            'url': response.request.url,
             'source': source,
             'topic': self.get_topic(idx),
             'stance': self.get_stance(idx, source),

@@ -1,5 +1,9 @@
 # ignore wmd file
-similarity_computation/wmd_distances.csv
+distance_computation/wmd_distances.csv
+
+# ignore data
+data/
+
 
 # ignore word embeddings model file
-similarity_computation/word_embeddings/model.bin
+distance_computation/word_embeddings/model.bin
